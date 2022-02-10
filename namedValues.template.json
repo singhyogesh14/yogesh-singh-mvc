@@ -1,0 +1,44 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "ApimServiceName": {
+      "type": "string"
+    },
+    "PolicyXMLBaseUrl": {
+      "type": "string"
+    }
+  },
+  "resources": [
+    {
+      "properties": {
+        "secret": true,
+        "displayName": "Logger-Credentials--61b307345e927d079c9805d4",
+        "value": "433e61e9-1524-410e-9243-c60a92d0ed06"
+      },
+      "name": "[concat(parameters('ApimServiceName'), '/61b307345e927d079c9805d3')]",
+      "type": "Microsoft.ApiManagement/service/properties",
+      "apiVersion": "2019-01-01"
+    },
+    {
+      "properties": {
+        "secret": true,
+        "displayName": "Logger-Credentials--62035ad394ed581cb48bcea9",
+        "value": "433e61e9-1524-410e-9243-c60a92d0ed06"
+      },
+      "name": "[concat(parameters('ApimServiceName'), '/62035ad394ed581cb48bcea8')]",
+      "type": "Microsoft.ApiManagement/service/properties",
+      "apiVersion": "2019-01-01"
+    },
+    {
+      "properties": {
+        "secret": true,
+        "displayName": "Logger-Credentials--62035e8e94ed581cb48bceb2",
+        "value": "433e61e9-1524-410e-9243-c60a92d0ed06"
+      },
+      "name": "[concat(parameters('ApimServiceName'), '/62035e8e94ed581cb48bceb1')]",
+      "type": "Microsoft.ApiManagement/service/properties",
+      "apiVersion": "2019-01-01"
+    }
+  ]
+}

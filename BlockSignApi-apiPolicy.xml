@@ -1,0 +1,15 @@
+<policies>
+	<inbound>
+		<authentication-managed-identity resource="c921ab68-a9a5-4225-a567-e35b8b8421fe" />
+		<base />
+	</inbound>
+	<backend>
+		<base />
+	</backend>
+	<outbound>
+		<base />
+	</outbound>
+	<on-error>
+		<base />
+	</on-error>
+</policies>
