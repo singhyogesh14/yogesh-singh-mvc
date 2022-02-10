@@ -1,0 +1,160 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "ApimServiceName": {
+      "type": "string"
+    },
+    "PolicyXMLBaseUrl": {
+      "type": "string"
+    }
+  },
+  "resources": [
+    {
+      "properties": {
+        "title": "first backend",
+        "description": "BlockSignApibackend",
+        "credentials": {},
+        "tls": {
+          "validateCertificateChain": false,
+          "validateCertificateName": false
+        },
+        "url": "https://blocksign-d0dv.hrblock.com/bsg/signing",
+        "protocol": "http"
+      },
+      "name": "[concat(parameters('ApimServiceName'), '/BlockSignApi_app')]",
+      "type": "Microsoft.ApiManagement/service/backends",
+      "apiVersion": "2019-01-01"
+    },
+    {
+      "properties": {
+        "title": "blocksign-service",
+        "description": "blocksign service backend",
+        "url": "https://blocksign-signing-api-apim-dv.a3d0dvbsgase01t.appserviceenvironment.net/",
+        "protocol": "http"
+      },
+      "name": "[concat(parameters('ApimServiceName'), '/blocksign-service')]",
+      "type": "Microsoft.ApiManagement/service/backends",
+      "apiVersion": "2019-01-01"
+    },
+    {
+      "properties": {
+        "title": "first backend",
+        "description": "BSGTestbackend",
+        "url": "http://blocksign-signing-api-apim-dv.a3d0dvbsgase01t.appserviceenvironment.net",
+        "protocol": "http"
+      },
+      "name": "[concat(parameters('ApimServiceName'), '/BSGTest_app')]",
+      "type": "Microsoft.ApiManagement/service/backends",
+      "apiVersion": "2019-01-01"
+    },
+    {
+      "properties": {
+        "credentials": {
+          "query": {},
+          "header": {}
+        },
+        "tls": {
+          "validateCertificateChain": false,
+          "validateCertificateName": true
+        },
+        "url": "https://clientpreferencecenter-dev.hrblock.net",
+        "protocol": "http"
+      },
+      "name": "[concat(parameters('ApimServiceName'), '/cpc-backend')]",
+      "type": "Microsoft.ApiManagement/service/backends",
+      "apiVersion": "2019-01-01"
+    },
+    {
+      "properties": {
+        "credentials": {
+          "query": {},
+          "header": {}
+        },
+        "tls": {
+          "validateCertificateChain": false,
+          "validateCertificateName": true
+        },
+        "url": "http://blocksign-signing-api-apim-dv.hrblock.net/",
+        "protocol": "http"
+      },
+      "name": "[concat(parameters('ApimServiceName'), '/nis-bsg')]",
+      "type": "Microsoft.ApiManagement/service/backends",
+      "apiVersion": "2019-01-01"
+    },
+    {
+      "properties": {
+        "title": "first backend",
+        "description": "SampleApibackend",
+        "url": "https://petstore.swagger.io/v2",
+        "protocol": "http"
+      },
+      "name": "[concat(parameters('ApimServiceName'), '/SampleApi_app')]",
+      "type": "Microsoft.ApiManagement/service/backends",
+      "apiVersion": "2019-01-01"
+    },
+    {
+      "properties": {
+        "credentials": {
+          "query": {},
+          "header": {}
+        },
+        "tls": {
+          "validateCertificateChain": false,
+          "validateCertificateName": false
+        },
+        "url": "https://samplenisapp.hrblock.net/",
+        "protocol": "http"
+      },
+      "name": "[concat(parameters('ApimServiceName'), '/SampleNisApp')]",
+      "type": "Microsoft.ApiManagement/service/backends",
+      "apiVersion": "2019-01-01"
+    },
+    {
+      "properties": {
+        "credentials": {
+          "query": {},
+          "header": {}
+        },
+        "tls": {
+          "validateCertificateChain": false,
+          "validateCertificateName": false
+        },
+        "url": "http://webservices.oorsprong.org/websamples.countryinfo/CountryInfoService.wso",
+        "protocol": "http"
+      },
+      "name": "[concat(parameters('ApimServiceName'), '/SOAP-Balaji')]",
+      "type": "Microsoft.ApiManagement/service/backends",
+      "apiVersion": "2019-01-01"
+    },
+    {
+      "properties": {
+        "description": "azure function test",
+        "credentials": {
+          "query": {},
+          "header": {}
+        },
+        "tls": {
+          "validateCertificateChain": false,
+          "validateCertificateName": false
+        },
+        "url": "https://office-ping-dev.a3d0dvapiase01t.appserviceenvironment.net/",
+        "protocol": "http"
+      },
+      "name": "[concat(parameters('ApimServiceName'), '/sujith-az-func')]",
+      "type": "Microsoft.ApiManagement/service/backends",
+      "apiVersion": "2019-01-01"
+    },
+    {
+      "properties": {
+        "description": "TestAppWeather",
+        "resourceId": "https://management.azure.com/subscriptions/32db0376-524a-43c6-8b9e-abceef07d038/resourceGroups/A3D0DVAPIRSG01T/providers/Microsoft.Web/sites/TestAppWeather",
+        "url": "https://testappweather.azurewebsites.net",
+        "protocol": "http"
+      },
+      "name": "[concat(parameters('ApimServiceName'), '/WebApp_testappweather')]",
+      "type": "Microsoft.ApiManagement/service/backends",
+      "apiVersion": "2019-01-01"
+    }
+  ]
+}

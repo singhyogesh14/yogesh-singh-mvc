@@ -1,0 +1,2598 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "ApimServiceName": {
+      "type": "string"
+    },
+    "PolicyXMLBaseUrl": {
+      "type": "string"
+    }
+  },
+  "resources": [
+    {
+      "properties": {
+        "description": "App for BlockSign",
+        "authenticationSettings": {
+          "subscriptionKeyRequired": false
+        },
+        "subscriptionKeyParameterNames": {
+          "header": "Ocp-Apim-Subscription-Key",
+          "query": "subscription-key"
+        },
+        "apiRevision": "1",
+        "isCurrent": true,
+        "subscriptionRequired": true,
+        "displayName": "BlockSign.Signing Core3.1",
+        "serviceUrl": "https://blocksign-d0dv.hrblock.com/bsg/signing",
+        "path": "bsgapips",
+        "protocols": [
+          "https"
+        ]
+      },
+      "name": "[concat(parameters('ApimServiceName'), '/BlockSignApi')]",
+      "type": "Microsoft.ApiManagement/service/apis",
+      "apiVersion": "2019-01-01",
+      "dependsOn": []
+    },
+    {
+      "properties": {
+        "contentType": "application/vnd.oai.openapi.components+json",
+        "document": {
+          "components": {
+            "schemas": {
+              "ApiResponse": {
+                "type": "object",
+                "properties": {
+                  "version": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "statusCode": {
+                    "type": "integer",
+                    "format": "int32"
+                  },
+                  "message": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "isError": {
+                    "type": "boolean",
+                    "nullable": true
+                  },
+                  "responseException": {
+                    "nullable": true
+                  },
+                  "result": {
+                    "nullable": true
+                  }
+                },
+                "additionalProperties": false
+              },
+              "AppConfigurationDto": {
+                "required": [
+                  "appId",
+                  "respType",
+                  "signOrder"
+                ],
+                "type": "object",
+                "properties": {
+                  "appId": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "signOrder": {
+                    "type": "integer",
+                    "format": "int32"
+                  },
+                  "respType": {
+                    "type": "string"
+                  },
+                  "config": {
+                    "type": "string",
+                    "nullable": true
+                  }
+                },
+                "additionalProperties": false
+              },
+              "ApplicationDto": {
+                "required": [
+                  "appCode",
+                  "appName"
+                ],
+                "type": "object",
+                "properties": {
+                  "appCode": {
+                    "type": "string"
+                  },
+                  "appName": {
+                    "type": "string"
+                  }
+                },
+                "additionalProperties": false
+              },
+              "CreateEnvelopeDto": {
+                "required": [
+                  "appId"
+                ],
+                "type": "object",
+                "properties": {
+                  "appId": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "taxProFirstName": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "taxProLastName": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "taxOfficePhone": {
+                    "type": "string",
+                    "nullable": true
+                  }
+                },
+                "additionalProperties": false
+              },
+              "FormPageDto": {
+                "required": [
+                  "pageNo"
+                ],
+                "type": "object",
+                "properties": {
+                  "pageNo": {
+                    "type": "integer",
+                    "format": "int32"
+                  },
+                  "pageStyle": {
+                    "$ref": "#/components/schemas/PageStyleDto"
+                  },
+                  "pageFields": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/PageFieldDto"
+                    },
+                    "nullable": true
+                  }
+                },
+                "additionalProperties": false
+              },
+              "PageFieldDto": {
+                "required": [
+                  "fieldName",
+                  "fieldType",
+                  "groupId",
+                  "height",
+                  "left",
+                  "signOrder",
+                  "top",
+                  "width"
+                ],
+                "type": "object",
+                "properties": {
+                  "top": {
+                    "type": "number",
+                    "format": "float"
+                  },
+                  "left": {
+                    "type": "number",
+                    "format": "float"
+                  },
+                  "width": {
+                    "type": "number",
+                    "format": "float"
+                  },
+                  "height": {
+                    "type": "number",
+                    "format": "float"
+                  },
+                  "fieldType": {
+                    "type": "string"
+                  },
+                  "signOrder": {
+                    "type": "integer",
+                    "format": "int32"
+                  },
+                  "groupId": {
+                    "type": "integer",
+                    "format": "int32"
+                  },
+                  "fieldNo": {
+                    "type": "integer",
+                    "format": "int32"
+                  },
+                  "fieldName": {
+                    "type": "string"
+                  },
+                  "fieldValue": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "docPageDetailId": {
+                    "type": "integer",
+                    "format": "int32"
+                  },
+                  "css": {
+                    "nullable": true
+                  }
+                },
+                "additionalProperties": false
+              },
+              "PageStyleDto": {
+                "required": [
+                  "height",
+                  "width"
+                ],
+                "type": "object",
+                "properties": {
+                  "width": {
+                    "type": "number",
+                    "format": "float"
+                  },
+                  "height": {
+                    "type": "number",
+                    "format": "float"
+                  },
+                  "css": {
+                    "nullable": true
+                  }
+                },
+                "additionalProperties": false
+              },
+              "ProblemDetails": {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "title": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "status": {
+                    "type": "integer",
+                    "format": "int32",
+                    "nullable": true
+                  },
+                  "detail": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "instance": {
+                    "type": "string",
+                    "nullable": true
+                  }
+                },
+                "additionalProperties": {}
+              },
+              "SealEnvelopeDto": {
+                "required": [
+                  "envelopeKey"
+                ],
+                "type": "object",
+                "properties": {
+                  "envelopeKey": {
+                    "type": "string"
+                  }
+                },
+                "additionalProperties": false
+              },
+              "SignerDto": {
+                "required": [
+                  "email",
+                  "envelopeKey",
+                  "fName",
+                  "lName",
+                  "signOrder"
+                ],
+                "type": "object",
+                "properties": {
+                  "signerId": {
+                    "type": "integer",
+                    "format": "int32"
+                  },
+                  "envelopeSignerId": {
+                    "type": "integer",
+                    "format": "int32"
+                  },
+                  "signerKey": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "envelopeId": {
+                    "type": "integer",
+                    "format": "int32"
+                  },
+                  "envelopeKey": {
+                    "type": "string"
+                  },
+                  "fName": {
+                    "type": "string"
+                  },
+                  "lName": {
+                    "type": "string"
+                  },
+                  "appId": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "isKBA": {
+                    "type": "integer",
+                    "format": "int32"
+                  },
+                  "name": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "email": {
+                    "type": "string"
+                  },
+                  "phone": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "signOrder": {
+                    "type": "integer",
+                    "format": "int32"
+                  },
+                  "signFieldId": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "createdTime": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "sessionKey": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "sessionCreatedTime": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "is_Signed": {
+                    "type": "boolean"
+                  }
+                },
+                "additionalProperties": false
+              },
+              "UpdateSignerAttemptFailed": {
+                "type": "object",
+                "properties": {
+                  "envelopeKey": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "signerKey": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "sessionKey": {
+                    "type": "string",
+                    "nullable": true
+                  }
+                },
+                "additionalProperties": false
+              },
+              "UpdateSigningStatusDTO": {
+                "required": [
+                  "envelopeKey",
+                  "signerKey",
+                  "signingstatus"
+                ],
+                "type": "object",
+                "properties": {
+                  "signingstatus": {
+                    "type": "string"
+                  },
+                  "envelopeKey": {
+                    "type": "string"
+                  },
+                  "signerKey": {
+                    "type": "string"
+                  }
+                },
+                "additionalProperties": false
+              },
+              "ApiSignerAddSignerToEnvelopePostRequest": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/SignerDto"
+                },
+                "x-apim-inline": true
+              },
+              "ApiSignerAddSignerToEnvelopePostRequest-1": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/SignerDto"
+                },
+                "x-apim-inline": true
+              },
+              "ApiSignerAddSignerToEnvelopePostRequest-2": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/SignerDto"
+                },
+                "x-apim-inline": true
+              }
+            }
+          }
+        }
+      },
+      "name": "[concat(parameters('ApimServiceName'), '/BlockSignApi/61f9188694ed5812f43334e7')]",
+      "type": "Microsoft.ApiManagement/service/apis/schemas",
+      "apiVersion": "2019-01-01",
+      "dependsOn": [
+        "[resourceId('Microsoft.ApiManagement/service/apis', parameters('ApimServiceName'), 'BlockSignApi')]"
+      ]
+    },
+    {
+      "properties": {
+        "templateParameters": [],
+        "request": {
+          "queryParameters": [],
+          "headers": [],
+          "representations": [
+            {
+              "contentType": "multipart/form-data",
+              "formParameters": [
+                {
+                  "name": "DocumentId",
+                  "type": "integer",
+                  "required": false,
+                  "values": []
+                },
+                {
+                  "name": "EnvelopeId",
+                  "type": "integer",
+                  "required": false,
+                  "values": []
+                },
+                {
+                  "name": "EnvelopeKey",
+                  "type": "string",
+                  "required": false,
+                  "values": []
+                },
+                {
+                  "name": "EnvelopeDocId",
+                  "type": "integer",
+                  "required": false,
+                  "values": []
+                },
+                {
+                  "name": "DocumentName",
+                  "type": "string",
+                  "required": false,
+                  "values": []
+                },
+                {
+                  "name": "Extension",
+                  "type": "string",
+                  "required": false,
+                  "values": []
+                },
+                {
+                  "name": "DocumentKey",
+                  "type": "string",
+                  "required": false,
+                  "values": []
+                },
+                {
+                  "name": "Pages",
+                  "type": "array",
+                  "required": false,
+                  "values": []
+                },
+                {
+                  "name": "PageDetails",
+                  "type": "string",
+                  "required": false,
+                  "values": []
+                },
+                {
+                  "name": "DocumentStatus",
+                  "type": "string",
+                  "required": false,
+                  "values": []
+                },
+                {
+                  "name": "DocumentStream.CanRead",
+                  "type": "boolean",
+                  "required": false,
+                  "values": []
+                },
+                {
+                  "name": "DocumentStream.CanSeek",
+                  "type": "boolean",
+                  "required": false,
+                  "values": []
+                },
+                {
+                  "name": "DocumentStream.CanTimeout",
+                  "type": "boolean",
+                  "required": false,
+                  "values": []
+                },
+                {
+                  "name": "DocumentStream.CanWrite",
+                  "type": "boolean",
+                  "required": false,
+                  "values": []
+                },
+                {
+                  "name": "DocumentStream.Length",
+                  "type": "integer",
+                  "required": false,
+                  "values": []
+                },
+                {
+                  "name": "DocumentStream.Position",
+                  "type": "integer",
+                  "required": false,
+                  "values": []
+                },
+                {
+                  "name": "DocumentStream.ReadTimeout",
+                  "type": "integer",
+                  "required": false,
+                  "values": []
+                },
+                {
+                  "name": "DocumentStream.WriteTimeout",
+                  "type": "integer",
+                  "required": false,
+                  "values": []
+                },
+                {
+                  "name": "SignedTime",
+                  "type": "string",
+                  "required": false,
+                  "values": []
+                },
+                {
+                  "name": "Content",
+                  "type": "string",
+                  "required": false,
+                  "values": []
+                },
+                {
+                  "name": "file.Length",
+                  "type": "integer",
+                  "required": false,
+                  "values": []
+                },
+                {
+                  "name": "file.IsDefault",
+                  "type": "boolean",
+                  "required": false,
+                  "values": []
+                },
+                {
+                  "name": "AbsolutePath",
+                  "type": "string",
+                  "required": false,
+                  "values": []
+                },
+                {
+                  "name": "Expiry",
+                  "type": "string",
+                  "required": false,
+                  "values": []
+                },
+                {
+                  "name": "LatestVersion",
+                  "type": "integer",
+                  "required": false,
+                  "values": []
+                },
+                {
+                  "name": "DocumentDescription",
+                  "type": "string",
+                  "required": false,
+                  "values": []
+                },
+                {
+                  "name": "SourceIpAddress",
+                  "type": "string",
+                  "required": false,
+                  "values": []
+                }
+              ]
+            }
+          ]
+        },
+        "responses": [
+          {
+            "statusCode": 200,
+            "description": "Success",
+            "headers": [],
+            "representations": [
+              {
+                "contentType": "text/plain",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ApiResponse"
+              },
+              {
+                "contentType": "application/json",
+                "sample": "{\r\n  \"version\": \"string\",\r\n  \"statusCode\": 0,\r\n  \"message\": \"string\",\r\n  \"isError\": true,\r\n  \"responseException\": {},\r\n  \"result\": {}\r\n}",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ApiResponse"
+              },
+              {
+                "contentType": "text/json",
+                "sample": "{\r\n  \"version\": \"string\",\r\n  \"statusCode\": 0,\r\n  \"message\": \"string\",\r\n  \"isError\": true,\r\n  \"responseException\": {},\r\n  \"result\": {}\r\n}",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ApiResponse"
+              }
+            ]
+          },
+          {
+            "statusCode": 400,
+            "description": "Bad Request",
+            "headers": [],
+            "representations": [
+              {
+                "contentType": "text/plain",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ProblemDetails"
+              },
+              {
+                "contentType": "application/json",
+                "sample": "{\r\n  \"type\": \"string\",\r\n  \"title\": \"string\",\r\n  \"status\": 0,\r\n  \"detail\": \"string\",\r\n  \"instance\": \"string\"\r\n}",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ProblemDetails"
+              },
+              {
+                "contentType": "text/json",
+                "sample": "{\r\n  \"type\": \"string\",\r\n  \"title\": \"string\",\r\n  \"status\": 0,\r\n  \"detail\": \"string\",\r\n  \"instance\": \"string\"\r\n}",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ProblemDetails"
+              }
+            ]
+          }
+        ],
+        "displayName": "/api/document/AddDocumentToEnvelope - POST",
+        "method": "POST",
+        "urlTemplate": "/api/document/AddDocumentToEnvelope"
+      },
+      "name": "[concat(parameters('ApimServiceName'), '/BlockSignApi/post-api-document-adddocumenttoenvelope')]",
+      "type": "Microsoft.ApiManagement/service/apis/operations",
+      "apiVersion": "2019-01-01",
+      "dependsOn": [
+        "[resourceId('Microsoft.ApiManagement/service/apis', parameters('ApimServiceName'), 'BlockSignApi')]",
+        "[resourceId('Microsoft.ApiManagement/service/apis/schemas', parameters('ApimServiceName'), 'BlockSignApi', '61f9188694ed5812f43334e7')]"
+      ]
+    },
+    {
+      "properties": {
+        "displayName": "Document"
+      },
+      "name": "[concat(parameters('ApimServiceName'), '/BlockSignApi/post-api-document-adddocumenttoenvelope/Document')]",
+      "type": "Microsoft.ApiManagement/service/apis/operations/tags",
+      "apiVersion": "2019-01-01",
+      "dependsOn": [
+        "[resourceId('Microsoft.ApiManagement/service/apis/operations', parameters('ApimServiceName'), 'BlockSignApi', 'post-api-document-adddocumenttoenvelope')]"
+      ]
+    },
+    {
+      "properties": {
+        "templateParameters": [
+          {
+            "name": "DocumentKey",
+            "type": "string",
+            "required": true,
+            "values": []
+          }
+        ],
+        "request": {
+          "queryParameters": [
+            {
+              "name": "SourceIpAddress",
+              "type": "string",
+              "required": false,
+              "values": []
+            }
+          ],
+          "headers": [],
+          "representations": []
+        },
+        "responses": [
+          {
+            "statusCode": 200,
+            "description": "Success",
+            "headers": [],
+            "representations": [
+              {
+                "contentType": "text/plain",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ApiResponse"
+              },
+              {
+                "contentType": "application/json",
+                "sample": "{\r\n  \"version\": \"string\",\r\n  \"statusCode\": 0,\r\n  \"message\": \"string\",\r\n  \"isError\": true,\r\n  \"responseException\": {},\r\n  \"result\": {}\r\n}",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ApiResponse"
+              },
+              {
+                "contentType": "text/json",
+                "sample": "{\r\n  \"version\": \"string\",\r\n  \"statusCode\": 0,\r\n  \"message\": \"string\",\r\n  \"isError\": true,\r\n  \"responseException\": {},\r\n  \"result\": {}\r\n}",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ApiResponse"
+              }
+            ]
+          },
+          {
+            "statusCode": 400,
+            "description": "Bad Request",
+            "headers": [],
+            "representations": [
+              {
+                "contentType": "text/plain",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ProblemDetails"
+              },
+              {
+                "contentType": "application/json",
+                "sample": "{\r\n  \"type\": \"string\",\r\n  \"title\": \"string\",\r\n  \"status\": 0,\r\n  \"detail\": \"string\",\r\n  \"instance\": \"string\"\r\n}",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ProblemDetails"
+              },
+              {
+                "contentType": "text/json",
+                "sample": "{\r\n  \"type\": \"string\",\r\n  \"title\": \"string\",\r\n  \"status\": 0,\r\n  \"detail\": \"string\",\r\n  \"instance\": \"string\"\r\n}",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ProblemDetails"
+              }
+            ]
+          }
+        ],
+        "displayName": "/api/document/DeleteDocument?DocumentKey={DocumentKey} - DELETE",
+        "method": "DELETE",
+        "urlTemplate": "/api/document/DeleteDocument?DocumentKey={DocumentKey}"
+      },
+      "name": "[concat(parameters('ApimServiceName'), '/BlockSignApi/delete-api-document-deletedocument-documentkey-documentkey')]",
+      "type": "Microsoft.ApiManagement/service/apis/operations",
+      "apiVersion": "2019-01-01",
+      "dependsOn": [
+        "[resourceId('Microsoft.ApiManagement/service/apis', parameters('ApimServiceName'), 'BlockSignApi')]",
+        "[resourceId('Microsoft.ApiManagement/service/apis/schemas', parameters('ApimServiceName'), 'BlockSignApi', '61f9188694ed5812f43334e7')]"
+      ]
+    },
+    {
+      "properties": {
+        "displayName": "Document"
+      },
+      "name": "[concat(parameters('ApimServiceName'), '/BlockSignApi/delete-api-document-deletedocument-documentkey-documentkey/Document')]",
+      "type": "Microsoft.ApiManagement/service/apis/operations/tags",
+      "apiVersion": "2019-01-01",
+      "dependsOn": [
+        "[resourceId('Microsoft.ApiManagement/service/apis/operations', parameters('ApimServiceName'), 'BlockSignApi', 'delete-api-document-deletedocument-documentkey-documentkey')]"
+      ]
+    },
+    {
+      "properties": {
+        "templateParameters": [],
+        "request": {
+          "queryParameters": [
+            {
+              "name": "envelopeKey",
+              "type": "string",
+              "required": false,
+              "values": []
+            }
+          ],
+          "headers": [],
+          "representations": []
+        },
+        "responses": [
+          {
+            "statusCode": 200,
+            "description": "Success",
+            "headers": [],
+            "representations": [
+              {
+                "contentType": "text/plain",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ApiResponse"
+              },
+              {
+                "contentType": "application/json",
+                "sample": "{\r\n  \"version\": \"string\",\r\n  \"statusCode\": 0,\r\n  \"message\": \"string\",\r\n  \"isError\": true,\r\n  \"responseException\": {},\r\n  \"result\": {}\r\n}",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ApiResponse"
+              },
+              {
+                "contentType": "text/json",
+                "sample": "{\r\n  \"version\": \"string\",\r\n  \"statusCode\": 0,\r\n  \"message\": \"string\",\r\n  \"isError\": true,\r\n  \"responseException\": {},\r\n  \"result\": {}\r\n}",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ApiResponse"
+              }
+            ]
+          },
+          {
+            "statusCode": 400,
+            "description": "Bad Request",
+            "headers": [],
+            "representations": [
+              {
+                "contentType": "text/plain",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ProblemDetails"
+              },
+              {
+                "contentType": "application/json",
+                "sample": "{\r\n  \"type\": \"string\",\r\n  \"title\": \"string\",\r\n  \"status\": 0,\r\n  \"detail\": \"string\",\r\n  \"instance\": \"string\"\r\n}",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ProblemDetails"
+              },
+              {
+                "contentType": "text/json",
+                "sample": "{\r\n  \"type\": \"string\",\r\n  \"title\": \"string\",\r\n  \"status\": 0,\r\n  \"detail\": \"string\",\r\n  \"instance\": \"string\"\r\n}",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ProblemDetails"
+              }
+            ]
+          }
+        ],
+        "displayName": "/api/document/DownloadDocument - GET",
+        "method": "GET",
+        "urlTemplate": "/api/document/DownloadDocument"
+      },
+      "name": "[concat(parameters('ApimServiceName'), '/BlockSignApi/get-api-document-downloaddocument')]",
+      "type": "Microsoft.ApiManagement/service/apis/operations",
+      "apiVersion": "2019-01-01",
+      "dependsOn": [
+        "[resourceId('Microsoft.ApiManagement/service/apis', parameters('ApimServiceName'), 'BlockSignApi')]",
+        "[resourceId('Microsoft.ApiManagement/service/apis/schemas', parameters('ApimServiceName'), 'BlockSignApi', '61f9188694ed5812f43334e7')]"
+      ]
+    },
+    {
+      "properties": {
+        "displayName": "Document"
+      },
+      "name": "[concat(parameters('ApimServiceName'), '/BlockSignApi/get-api-document-downloaddocument/Document')]",
+      "type": "Microsoft.ApiManagement/service/apis/operations/tags",
+      "apiVersion": "2019-01-01",
+      "dependsOn": [
+        "[resourceId('Microsoft.ApiManagement/service/apis/operations', parameters('ApimServiceName'), 'BlockSignApi', 'get-api-document-downloaddocument')]"
+      ]
+    },
+    {
+      "properties": {
+        "templateParameters": [
+          {
+            "name": "DocumentKey",
+            "type": "string",
+            "required": true,
+            "values": []
+          },
+          {
+            "name": "SignerKey",
+            "type": "string",
+            "required": true,
+            "values": []
+          },
+          {
+            "name": "EnvelopeKey",
+            "type": "string",
+            "required": true,
+            "values": []
+          }
+        ],
+        "request": {
+          "queryParameters": [],
+          "headers": [
+            {
+              "name": "bsg-session-key",
+              "type": "string",
+              "required": false,
+              "values": []
+            }
+          ],
+          "representations": []
+        },
+        "responses": [
+          {
+            "statusCode": 200,
+            "description": "Success",
+            "headers": [],
+            "representations": [
+              {
+                "contentType": "text/plain",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ApiResponse"
+              },
+              {
+                "contentType": "application/json",
+                "sample": "{\r\n  \"version\": \"string\",\r\n  \"statusCode\": 0,\r\n  \"message\": \"string\",\r\n  \"isError\": true,\r\n  \"responseException\": {},\r\n  \"result\": {}\r\n}",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ApiResponse"
+              },
+              {
+                "contentType": "text/json",
+                "sample": "{\r\n  \"version\": \"string\",\r\n  \"statusCode\": 0,\r\n  \"message\": \"string\",\r\n  \"isError\": true,\r\n  \"responseException\": {},\r\n  \"result\": {}\r\n}",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ApiResponse"
+              }
+            ]
+          },
+          {
+            "statusCode": 400,
+            "description": "Bad Request",
+            "headers": [],
+            "representations": [
+              {
+                "contentType": "text/plain",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ProblemDetails"
+              },
+              {
+                "contentType": "application/json",
+                "sample": "{\r\n  \"type\": \"string\",\r\n  \"title\": \"string\",\r\n  \"status\": 0,\r\n  \"detail\": \"string\",\r\n  \"instance\": \"string\"\r\n}",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ProblemDetails"
+              },
+              {
+                "contentType": "text/json",
+                "sample": "{\r\n  \"type\": \"string\",\r\n  \"title\": \"string\",\r\n  \"status\": 0,\r\n  \"detail\": \"string\",\r\n  \"instance\": \"string\"\r\n}",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ProblemDetails"
+              }
+            ]
+          }
+        ],
+        "displayName": "/api/document/GetDocument?DocumentKey={DocumentKey}&SignerKey={SignerKey}&EnvelopeKey={EnvelopeKey} - GET",
+        "method": "GET",
+        "urlTemplate": "/api/document/GetDocument?DocumentKey={DocumentKey}&SignerKey={SignerKey}&EnvelopeKey={EnvelopeKey}"
+      },
+      "name": "[concat(parameters('ApimServiceName'), '/BlockSignApi/get-api-document-getdocument-documentkey-documentkey-signerkey-signerkey-env')]",
+      "type": "Microsoft.ApiManagement/service/apis/operations",
+      "apiVersion": "2019-01-01",
+      "dependsOn": [
+        "[resourceId('Microsoft.ApiManagement/service/apis', parameters('ApimServiceName'), 'BlockSignApi')]",
+        "[resourceId('Microsoft.ApiManagement/service/apis/schemas', parameters('ApimServiceName'), 'BlockSignApi', '61f9188694ed5812f43334e7')]"
+      ]
+    },
+    {
+      "properties": {
+        "displayName": "Document"
+      },
+      "name": "[concat(parameters('ApimServiceName'), '/BlockSignApi/get-api-document-getdocument-documentkey-documentkey-signerkey-signerkey-env/Document')]",
+      "type": "Microsoft.ApiManagement/service/apis/operations/tags",
+      "apiVersion": "2019-01-01",
+      "dependsOn": [
+        "[resourceId('Microsoft.ApiManagement/service/apis/operations', parameters('ApimServiceName'), 'BlockSignApi', 'get-api-document-getdocument-documentkey-documentkey-signerkey-signerkey-env')]"
+      ]
+    },
+    {
+      "properties": {
+        "templateParameters": [],
+        "request": {
+          "queryParameters": [],
+          "headers": [],
+          "representations": [
+            {
+              "contentType": "application/json",
+              "sample": "{\r\n  \"appId\": \"string\",\r\n  \"signOrder\": 0,\r\n  \"respType\": \"string\",\r\n  \"config\": \"string\"\r\n}",
+              "schemaId": "61f9188694ed5812f43334e7",
+              "typeName": "AppConfigurationDto"
+            },
+            {
+              "contentType": "text/json",
+              "sample": "{\r\n  \"appId\": \"string\",\r\n  \"signOrder\": 0,\r\n  \"respType\": \"string\",\r\n  \"config\": \"string\"\r\n}",
+              "schemaId": "61f9188694ed5812f43334e7",
+              "typeName": "AppConfigurationDto"
+            },
+            {
+              "contentType": "application/*+json",
+              "sample": "{\r\n  \"appId\": \"string\",\r\n  \"signOrder\": 0,\r\n  \"respType\": \"string\",\r\n  \"config\": \"string\"\r\n}",
+              "schemaId": "61f9188694ed5812f43334e7",
+              "typeName": "AppConfigurationDto"
+            }
+          ]
+        },
+        "responses": [
+          {
+            "statusCode": 200,
+            "description": "Success",
+            "headers": [],
+            "representations": [
+              {
+                "contentType": "text/plain",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ApiResponse"
+              },
+              {
+                "contentType": "application/json",
+                "sample": "{\r\n  \"version\": \"string\",\r\n  \"statusCode\": 0,\r\n  \"message\": \"string\",\r\n  \"isError\": true,\r\n  \"responseException\": {},\r\n  \"result\": {}\r\n}",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ApiResponse"
+              },
+              {
+                "contentType": "text/json",
+                "sample": "{\r\n  \"version\": \"string\",\r\n  \"statusCode\": 0,\r\n  \"message\": \"string\",\r\n  \"isError\": true,\r\n  \"responseException\": {},\r\n  \"result\": {}\r\n}",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ApiResponse"
+              }
+            ]
+          },
+          {
+            "statusCode": 400,
+            "description": "Bad Request",
+            "headers": [],
+            "representations": [
+              {
+                "contentType": "text/plain",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ProblemDetails"
+              },
+              {
+                "contentType": "application/json",
+                "sample": "{\r\n  \"type\": \"string\",\r\n  \"title\": \"string\",\r\n  \"status\": 0,\r\n  \"detail\": \"string\",\r\n  \"instance\": \"string\"\r\n}",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ProblemDetails"
+              },
+              {
+                "contentType": "text/json",
+                "sample": "{\r\n  \"type\": \"string\",\r\n  \"title\": \"string\",\r\n  \"status\": 0,\r\n  \"detail\": \"string\",\r\n  \"instance\": \"string\"\r\n}",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ProblemDetails"
+              }
+            ]
+          }
+        ],
+        "displayName": "/api/envelope/AddAppConfiguration - POST",
+        "method": "POST",
+        "urlTemplate": "/api/envelope/AddAppConfiguration"
+      },
+      "name": "[concat(parameters('ApimServiceName'), '/BlockSignApi/post-api-envelope-addappconfiguration')]",
+      "type": "Microsoft.ApiManagement/service/apis/operations",
+      "apiVersion": "2019-01-01",
+      "dependsOn": [
+        "[resourceId('Microsoft.ApiManagement/service/apis', parameters('ApimServiceName'), 'BlockSignApi')]",
+        "[resourceId('Microsoft.ApiManagement/service/apis/schemas', parameters('ApimServiceName'), 'BlockSignApi', '61f9188694ed5812f43334e7')]"
+      ]
+    },
+    {
+      "properties": {
+        "displayName": "Envelope"
+      },
+      "name": "[concat(parameters('ApimServiceName'), '/BlockSignApi/post-api-envelope-addappconfiguration/Envelope')]",
+      "type": "Microsoft.ApiManagement/service/apis/operations/tags",
+      "apiVersion": "2019-01-01",
+      "dependsOn": [
+        "[resourceId('Microsoft.ApiManagement/service/apis/operations', parameters('ApimServiceName'), 'BlockSignApi', 'post-api-envelope-addappconfiguration')]"
+      ]
+    },
+    {
+      "properties": {
+        "templateParameters": [],
+        "request": {
+          "queryParameters": [],
+          "headers": [],
+          "representations": [
+            {
+              "contentType": "application/json",
+              "sample": "{\r\n  \"appCode\": \"string\",\r\n  \"appName\": \"string\"\r\n}",
+              "schemaId": "61f9188694ed5812f43334e7",
+              "typeName": "ApplicationDto"
+            },
+            {
+              "contentType": "text/json",
+              "sample": "{\r\n  \"appCode\": \"string\",\r\n  \"appName\": \"string\"\r\n}",
+              "schemaId": "61f9188694ed5812f43334e7",
+              "typeName": "ApplicationDto"
+            },
+            {
+              "contentType": "application/*+json",
+              "sample": "{\r\n  \"appCode\": \"string\",\r\n  \"appName\": \"string\"\r\n}",
+              "schemaId": "61f9188694ed5812f43334e7",
+              "typeName": "ApplicationDto"
+            }
+          ]
+        },
+        "responses": [
+          {
+            "statusCode": 200,
+            "description": "Success",
+            "headers": [],
+            "representations": [
+              {
+                "contentType": "text/plain",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ApiResponse"
+              },
+              {
+                "contentType": "application/json",
+                "sample": "{\r\n  \"version\": \"string\",\r\n  \"statusCode\": 0,\r\n  \"message\": \"string\",\r\n  \"isError\": true,\r\n  \"responseException\": {},\r\n  \"result\": {}\r\n}",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ApiResponse"
+              },
+              {
+                "contentType": "text/json",
+                "sample": "{\r\n  \"version\": \"string\",\r\n  \"statusCode\": 0,\r\n  \"message\": \"string\",\r\n  \"isError\": true,\r\n  \"responseException\": {},\r\n  \"result\": {}\r\n}",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ApiResponse"
+              }
+            ]
+          },
+          {
+            "statusCode": 400,
+            "description": "Bad Request",
+            "headers": [],
+            "representations": [
+              {
+                "contentType": "text/plain",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ProblemDetails"
+              },
+              {
+                "contentType": "application/json",
+                "sample": "{\r\n  \"type\": \"string\",\r\n  \"title\": \"string\",\r\n  \"status\": 0,\r\n  \"detail\": \"string\",\r\n  \"instance\": \"string\"\r\n}",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ProblemDetails"
+              },
+              {
+                "contentType": "text/json",
+                "sample": "{\r\n  \"type\": \"string\",\r\n  \"title\": \"string\",\r\n  \"status\": 0,\r\n  \"detail\": \"string\",\r\n  \"instance\": \"string\"\r\n}",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ProblemDetails"
+              }
+            ]
+          }
+        ],
+        "displayName": "/api/envelope/CreateApplication - POST",
+        "method": "POST",
+        "urlTemplate": "/api/envelope/CreateApplication"
+      },
+      "name": "[concat(parameters('ApimServiceName'), '/BlockSignApi/post-api-envelope-createapplication')]",
+      "type": "Microsoft.ApiManagement/service/apis/operations",
+      "apiVersion": "2019-01-01",
+      "dependsOn": [
+        "[resourceId('Microsoft.ApiManagement/service/apis', parameters('ApimServiceName'), 'BlockSignApi')]",
+        "[resourceId('Microsoft.ApiManagement/service/apis/schemas', parameters('ApimServiceName'), 'BlockSignApi', '61f9188694ed5812f43334e7')]"
+      ]
+    },
+    {
+      "properties": {
+        "displayName": "Envelope"
+      },
+      "name": "[concat(parameters('ApimServiceName'), '/BlockSignApi/post-api-envelope-createapplication/Envelope')]",
+      "type": "Microsoft.ApiManagement/service/apis/operations/tags",
+      "apiVersion": "2019-01-01",
+      "dependsOn": [
+        "[resourceId('Microsoft.ApiManagement/service/apis/operations', parameters('ApimServiceName'), 'BlockSignApi', 'post-api-envelope-createapplication')]"
+      ]
+    },
+    {
+      "properties": {
+        "templateParameters": [
+          {
+            "name": "EnvelopeKey",
+            "type": "string",
+            "required": true,
+            "values": []
+          }
+        ],
+        "request": {
+          "queryParameters": [
+            {
+              "name": "SourceIpAddress",
+              "type": "string",
+              "required": false,
+              "values": []
+            }
+          ],
+          "headers": [],
+          "representations": []
+        },
+        "responses": [
+          {
+            "statusCode": 200,
+            "description": "Success",
+            "headers": [],
+            "representations": [
+              {
+                "contentType": "text/plain",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ApiResponse"
+              },
+              {
+                "contentType": "application/json",
+                "sample": "{\r\n  \"version\": \"string\",\r\n  \"statusCode\": 0,\r\n  \"message\": \"string\",\r\n  \"isError\": true,\r\n  \"responseException\": {},\r\n  \"result\": {}\r\n}",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ApiResponse"
+              },
+              {
+                "contentType": "text/json",
+                "sample": "{\r\n  \"version\": \"string\",\r\n  \"statusCode\": 0,\r\n  \"message\": \"string\",\r\n  \"isError\": true,\r\n  \"responseException\": {},\r\n  \"result\": {}\r\n}",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ApiResponse"
+              }
+            ]
+          },
+          {
+            "statusCode": 400,
+            "description": "Bad Request",
+            "headers": [],
+            "representations": [
+              {
+                "contentType": "text/plain",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ProblemDetails"
+              },
+              {
+                "contentType": "application/json",
+                "sample": "{\r\n  \"type\": \"string\",\r\n  \"title\": \"string\",\r\n  \"status\": 0,\r\n  \"detail\": \"string\",\r\n  \"instance\": \"string\"\r\n}",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ProblemDetails"
+              },
+              {
+                "contentType": "text/json",
+                "sample": "{\r\n  \"type\": \"string\",\r\n  \"title\": \"string\",\r\n  \"status\": 0,\r\n  \"detail\": \"string\",\r\n  \"instance\": \"string\"\r\n}",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ProblemDetails"
+              }
+            ]
+          }
+        ],
+        "displayName": "/api/envelope/DeleteEnvelope?EnvelopeKey={EnvelopeKey} - DELETE",
+        "method": "DELETE",
+        "urlTemplate": "/api/envelope/DeleteEnvelope?EnvelopeKey={EnvelopeKey}"
+      },
+      "name": "[concat(parameters('ApimServiceName'), '/BlockSignApi/delete-api-envelope-deleteenvelope-envelopekey-envelopekey')]",
+      "type": "Microsoft.ApiManagement/service/apis/operations",
+      "apiVersion": "2019-01-01",
+      "dependsOn": [
+        "[resourceId('Microsoft.ApiManagement/service/apis', parameters('ApimServiceName'), 'BlockSignApi')]",
+        "[resourceId('Microsoft.ApiManagement/service/apis/schemas', parameters('ApimServiceName'), 'BlockSignApi', '61f9188694ed5812f43334e7')]"
+      ]
+    },
+    {
+      "properties": {
+        "displayName": "Envelope"
+      },
+      "name": "[concat(parameters('ApimServiceName'), '/BlockSignApi/delete-api-envelope-deleteenvelope-envelopekey-envelopekey/Envelope')]",
+      "type": "Microsoft.ApiManagement/service/apis/operations/tags",
+      "apiVersion": "2019-01-01",
+      "dependsOn": [
+        "[resourceId('Microsoft.ApiManagement/service/apis/operations', parameters('ApimServiceName'), 'BlockSignApi', 'delete-api-envelope-deleteenvelope-envelopekey-envelopekey')]"
+      ]
+    },
+    {
+      "properties": {
+        "templateParameters": [
+          {
+            "name": "EnvelopeKey",
+            "type": "string",
+            "required": true,
+            "values": []
+          },
+          {
+            "name": "SignerKey",
+            "type": "string",
+            "required": true,
+            "values": []
+          }
+        ],
+        "request": {
+          "queryParameters": [],
+          "headers": [
+            {
+              "name": "bsg-session-key",
+              "type": "string",
+              "required": false,
+              "values": []
+            }
+          ],
+          "representations": []
+        },
+        "responses": [
+          {
+            "statusCode": 200,
+            "description": "Success",
+            "headers": [],
+            "representations": [
+              {
+                "contentType": "text/plain",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ApiResponse"
+              },
+              {
+                "contentType": "application/json",
+                "sample": "{\r\n  \"version\": \"string\",\r\n  \"statusCode\": 0,\r\n  \"message\": \"string\",\r\n  \"isError\": true,\r\n  \"responseException\": {},\r\n  \"result\": {}\r\n}",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ApiResponse"
+              },
+              {
+                "contentType": "text/json",
+                "sample": "{\r\n  \"version\": \"string\",\r\n  \"statusCode\": 0,\r\n  \"message\": \"string\",\r\n  \"isError\": true,\r\n  \"responseException\": {},\r\n  \"result\": {}\r\n}",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ApiResponse"
+              }
+            ]
+          },
+          {
+            "statusCode": 400,
+            "description": "Bad Request",
+            "headers": [],
+            "representations": [
+              {
+                "contentType": "text/plain",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ProblemDetails"
+              },
+              {
+                "contentType": "application/json",
+                "sample": "{\r\n  \"type\": \"string\",\r\n  \"title\": \"string\",\r\n  \"status\": 0,\r\n  \"detail\": \"string\",\r\n  \"instance\": \"string\"\r\n}",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ProblemDetails"
+              },
+              {
+                "contentType": "text/json",
+                "sample": "{\r\n  \"type\": \"string\",\r\n  \"title\": \"string\",\r\n  \"status\": 0,\r\n  \"detail\": \"string\",\r\n  \"instance\": \"string\"\r\n}",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ProblemDetails"
+              }
+            ]
+          }
+        ],
+        "displayName": "/api/envelope/GetEnvelope?EnvelopeKey={EnvelopeKey}&SignerKey={SignerKey} - GET",
+        "method": "GET",
+        "urlTemplate": "/api/envelope/GetEnvelope?EnvelopeKey={EnvelopeKey}&SignerKey={SignerKey}"
+      },
+      "name": "[concat(parameters('ApimServiceName'), '/BlockSignApi/get-api-envelope-getenvelope-envelopekey-envelopekey-signerkey-signerkey')]",
+      "type": "Microsoft.ApiManagement/service/apis/operations",
+      "apiVersion": "2019-01-01",
+      "dependsOn": [
+        "[resourceId('Microsoft.ApiManagement/service/apis', parameters('ApimServiceName'), 'BlockSignApi')]",
+        "[resourceId('Microsoft.ApiManagement/service/apis/schemas', parameters('ApimServiceName'), 'BlockSignApi', '61f9188694ed5812f43334e7')]"
+      ]
+    },
+    {
+      "properties": {
+        "displayName": "Envelope"
+      },
+      "name": "[concat(parameters('ApimServiceName'), '/BlockSignApi/get-api-envelope-getenvelope-envelopekey-envelopekey-signerkey-signerkey/Envelope')]",
+      "type": "Microsoft.ApiManagement/service/apis/operations/tags",
+      "apiVersion": "2019-01-01",
+      "dependsOn": [
+        "[resourceId('Microsoft.ApiManagement/service/apis/operations', parameters('ApimServiceName'), 'BlockSignApi', 'get-api-envelope-getenvelope-envelopekey-envelopekey-signerkey-signerkey')]"
+      ]
+    },
+    {
+      "properties": {
+        "templateParameters": [],
+        "request": {
+          "queryParameters": [],
+          "headers": [],
+          "representations": [
+            {
+              "contentType": "application/json",
+              "sample": "{\r\n  \"appId\": \"string\",\r\n  \"taxProFirstName\": \"string\",\r\n  \"taxProLastName\": \"string\",\r\n  \"taxOfficePhone\": \"string\"\r\n}",
+              "schemaId": "61f9188694ed5812f43334e7",
+              "typeName": "CreateEnvelopeDto"
+            },
+            {
+              "contentType": "text/json",
+              "sample": "{\r\n  \"appId\": \"string\",\r\n  \"taxProFirstName\": \"string\",\r\n  \"taxProLastName\": \"string\",\r\n  \"taxOfficePhone\": \"string\"\r\n}",
+              "schemaId": "61f9188694ed5812f43334e7",
+              "typeName": "CreateEnvelopeDto"
+            },
+            {
+              "contentType": "application/*+json",
+              "sample": "{\r\n  \"appId\": \"string\",\r\n  \"taxProFirstName\": \"string\",\r\n  \"taxProLastName\": \"string\",\r\n  \"taxOfficePhone\": \"string\"\r\n}",
+              "schemaId": "61f9188694ed5812f43334e7",
+              "typeName": "CreateEnvelopeDto"
+            }
+          ]
+        },
+        "responses": [
+          {
+            "statusCode": 200,
+            "description": "Success",
+            "headers": [],
+            "representations": [
+              {
+                "contentType": "text/plain",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ApiResponse"
+              },
+              {
+                "contentType": "application/json",
+                "sample": "{\r\n  \"version\": \"string\",\r\n  \"statusCode\": 0,\r\n  \"message\": \"string\",\r\n  \"isError\": true,\r\n  \"responseException\": {},\r\n  \"result\": {}\r\n}",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ApiResponse"
+              },
+              {
+                "contentType": "text/json",
+                "sample": "{\r\n  \"version\": \"string\",\r\n  \"statusCode\": 0,\r\n  \"message\": \"string\",\r\n  \"isError\": true,\r\n  \"responseException\": {},\r\n  \"result\": {}\r\n}",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ApiResponse"
+              }
+            ]
+          },
+          {
+            "statusCode": 400,
+            "description": "Bad Request",
+            "headers": [],
+            "representations": [
+              {
+                "contentType": "text/plain",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ProblemDetails"
+              },
+              {
+                "contentType": "application/json",
+                "sample": "{\r\n  \"type\": \"string\",\r\n  \"title\": \"string\",\r\n  \"status\": 0,\r\n  \"detail\": \"string\",\r\n  \"instance\": \"string\"\r\n}",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ProblemDetails"
+              },
+              {
+                "contentType": "text/json",
+                "sample": "{\r\n  \"type\": \"string\",\r\n  \"title\": \"string\",\r\n  \"status\": 0,\r\n  \"detail\": \"string\",\r\n  \"instance\": \"string\"\r\n}",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ProblemDetails"
+              }
+            ]
+          }
+        ],
+        "displayName": "/api/envelope/New - POST",
+        "method": "POST",
+        "urlTemplate": "/api/envelope/New"
+      },
+      "name": "[concat(parameters('ApimServiceName'), '/BlockSignApi/post-api-envelope-new')]",
+      "type": "Microsoft.ApiManagement/service/apis/operations",
+      "apiVersion": "2019-01-01",
+      "dependsOn": [
+        "[resourceId('Microsoft.ApiManagement/service/apis', parameters('ApimServiceName'), 'BlockSignApi')]",
+        "[resourceId('Microsoft.ApiManagement/service/apis/schemas', parameters('ApimServiceName'), 'BlockSignApi', '61f9188694ed5812f43334e7')]"
+      ]
+    },
+    {
+      "properties": {
+        "displayName": "Envelope"
+      },
+      "name": "[concat(parameters('ApimServiceName'), '/BlockSignApi/post-api-envelope-new/Envelope')]",
+      "type": "Microsoft.ApiManagement/service/apis/operations/tags",
+      "apiVersion": "2019-01-01",
+      "dependsOn": [
+        "[resourceId('Microsoft.ApiManagement/service/apis/operations', parameters('ApimServiceName'), 'BlockSignApi', 'post-api-envelope-new')]"
+      ]
+    },
+    {
+      "properties": {
+        "templateParameters": [],
+        "request": {
+          "queryParameters": [],
+          "headers": [],
+          "representations": [
+            {
+              "contentType": "application/json",
+              "sample": "{\r\n  \"envelopeKey\": \"string\"\r\n}",
+              "schemaId": "61f9188694ed5812f43334e7",
+              "typeName": "SealEnvelopeDto"
+            },
+            {
+              "contentType": "text/json",
+              "sample": "{\r\n  \"envelopeKey\": \"string\"\r\n}",
+              "schemaId": "61f9188694ed5812f43334e7",
+              "typeName": "SealEnvelopeDto"
+            },
+            {
+              "contentType": "application/*+json",
+              "sample": "{\r\n  \"envelopeKey\": \"string\"\r\n}",
+              "schemaId": "61f9188694ed5812f43334e7",
+              "typeName": "SealEnvelopeDto"
+            }
+          ]
+        },
+        "responses": [
+          {
+            "statusCode": 200,
+            "description": "Success",
+            "headers": [],
+            "representations": [
+              {
+                "contentType": "text/plain",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ApiResponse"
+              },
+              {
+                "contentType": "application/json",
+                "sample": "{\r\n  \"version\": \"string\",\r\n  \"statusCode\": 0,\r\n  \"message\": \"string\",\r\n  \"isError\": true,\r\n  \"responseException\": {},\r\n  \"result\": {}\r\n}",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ApiResponse"
+              },
+              {
+                "contentType": "text/json",
+                "sample": "{\r\n  \"version\": \"string\",\r\n  \"statusCode\": 0,\r\n  \"message\": \"string\",\r\n  \"isError\": true,\r\n  \"responseException\": {},\r\n  \"result\": {}\r\n}",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ApiResponse"
+              }
+            ]
+          },
+          {
+            "statusCode": 400,
+            "description": "Bad Request",
+            "headers": [],
+            "representations": [
+              {
+                "contentType": "text/plain",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ProblemDetails"
+              },
+              {
+                "contentType": "application/json",
+                "sample": "{\r\n  \"type\": \"string\",\r\n  \"title\": \"string\",\r\n  \"status\": 0,\r\n  \"detail\": \"string\",\r\n  \"instance\": \"string\"\r\n}",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ProblemDetails"
+              },
+              {
+                "contentType": "text/json",
+                "sample": "{\r\n  \"type\": \"string\",\r\n  \"title\": \"string\",\r\n  \"status\": 0,\r\n  \"detail\": \"string\",\r\n  \"instance\": \"string\"\r\n}",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ProblemDetails"
+              }
+            ]
+          }
+        ],
+        "displayName": "/api/envelope/Seal - POST",
+        "method": "POST",
+        "urlTemplate": "/api/envelope/Seal"
+      },
+      "name": "[concat(parameters('ApimServiceName'), '/BlockSignApi/post-api-envelope-seal')]",
+      "type": "Microsoft.ApiManagement/service/apis/operations",
+      "apiVersion": "2019-01-01",
+      "dependsOn": [
+        "[resourceId('Microsoft.ApiManagement/service/apis', parameters('ApimServiceName'), 'BlockSignApi')]",
+        "[resourceId('Microsoft.ApiManagement/service/apis/schemas', parameters('ApimServiceName'), 'BlockSignApi', '61f9188694ed5812f43334e7')]"
+      ]
+    },
+    {
+      "properties": {
+        "displayName": "Envelope"
+      },
+      "name": "[concat(parameters('ApimServiceName'), '/BlockSignApi/post-api-envelope-seal/Envelope')]",
+      "type": "Microsoft.ApiManagement/service/apis/operations/tags",
+      "apiVersion": "2019-01-01",
+      "dependsOn": [
+        "[resourceId('Microsoft.ApiManagement/service/apis/operations', parameters('ApimServiceName'), 'BlockSignApi', 'post-api-envelope-seal')]"
+      ]
+    },
+    {
+      "properties": {
+        "templateParameters": [],
+        "request": {
+          "queryParameters": [
+            {
+              "name": "envelopekey",
+              "type": "string",
+              "required": false,
+              "values": []
+            }
+          ],
+          "headers": [],
+          "representations": []
+        },
+        "responses": [
+          {
+            "statusCode": 200,
+            "description": "Success",
+            "headers": [],
+            "representations": [
+              {
+                "contentType": "text/plain",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ApiResponse"
+              },
+              {
+                "contentType": "application/json",
+                "sample": "{\r\n  \"version\": \"string\",\r\n  \"statusCode\": 0,\r\n  \"message\": \"string\",\r\n  \"isError\": true,\r\n  \"responseException\": {},\r\n  \"result\": {}\r\n}",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ApiResponse"
+              },
+              {
+                "contentType": "text/json",
+                "sample": "{\r\n  \"version\": \"string\",\r\n  \"statusCode\": 0,\r\n  \"message\": \"string\",\r\n  \"isError\": true,\r\n  \"responseException\": {},\r\n  \"result\": {}\r\n}",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ApiResponse"
+              }
+            ]
+          },
+          {
+            "statusCode": 400,
+            "description": "Bad Request",
+            "headers": [],
+            "representations": [
+              {
+                "contentType": "text/plain",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ProblemDetails"
+              },
+              {
+                "contentType": "application/json",
+                "sample": "{\r\n  \"type\": \"string\",\r\n  \"title\": \"string\",\r\n  \"status\": 0,\r\n  \"detail\": \"string\",\r\n  \"instance\": \"string\"\r\n}",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ProblemDetails"
+              },
+              {
+                "contentType": "text/json",
+                "sample": "{\r\n  \"type\": \"string\",\r\n  \"title\": \"string\",\r\n  \"status\": 0,\r\n  \"detail\": \"string\",\r\n  \"instance\": \"string\"\r\n}",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ProblemDetails"
+              }
+            ]
+          }
+        ],
+        "displayName": "/api/envelope/UpdateAuthFailed - POST",
+        "method": "POST",
+        "urlTemplate": "/api/envelope/UpdateAuthFailed"
+      },
+      "name": "[concat(parameters('ApimServiceName'), '/BlockSignApi/post-api-envelope-updateauthfailed')]",
+      "type": "Microsoft.ApiManagement/service/apis/operations",
+      "apiVersion": "2019-01-01",
+      "dependsOn": [
+        "[resourceId('Microsoft.ApiManagement/service/apis', parameters('ApimServiceName'), 'BlockSignApi')]",
+        "[resourceId('Microsoft.ApiManagement/service/apis/schemas', parameters('ApimServiceName'), 'BlockSignApi', '61f9188694ed5812f43334e7')]"
+      ]
+    },
+    {
+      "properties": {
+        "displayName": "Envelope"
+      },
+      "name": "[concat(parameters('ApimServiceName'), '/BlockSignApi/post-api-envelope-updateauthfailed/Envelope')]",
+      "type": "Microsoft.ApiManagement/service/apis/operations/tags",
+      "apiVersion": "2019-01-01",
+      "dependsOn": [
+        "[resourceId('Microsoft.ApiManagement/service/apis/operations', parameters('ApimServiceName'), 'BlockSignApi', 'post-api-envelope-updateauthfailed')]"
+      ]
+    },
+    {
+      "properties": {
+        "templateParameters": [],
+        "request": {
+          "queryParameters": [
+            {
+              "name": "envelopekey",
+              "type": "string",
+              "required": false,
+              "values": []
+            }
+          ],
+          "headers": [],
+          "representations": []
+        },
+        "responses": [
+          {
+            "statusCode": 200,
+            "description": "Success",
+            "headers": [],
+            "representations": [
+              {
+                "contentType": "text/plain",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ApiResponse"
+              },
+              {
+                "contentType": "application/json",
+                "sample": "{\r\n  \"version\": \"string\",\r\n  \"statusCode\": 0,\r\n  \"message\": \"string\",\r\n  \"isError\": true,\r\n  \"responseException\": {},\r\n  \"result\": {}\r\n}",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ApiResponse"
+              },
+              {
+                "contentType": "text/json",
+                "sample": "{\r\n  \"version\": \"string\",\r\n  \"statusCode\": 0,\r\n  \"message\": \"string\",\r\n  \"isError\": true,\r\n  \"responseException\": {},\r\n  \"result\": {}\r\n}",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ApiResponse"
+              }
+            ]
+          },
+          {
+            "statusCode": 400,
+            "description": "Bad Request",
+            "headers": [],
+            "representations": [
+              {
+                "contentType": "text/plain",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ProblemDetails"
+              },
+              {
+                "contentType": "application/json",
+                "sample": "{\r\n  \"type\": \"string\",\r\n  \"title\": \"string\",\r\n  \"status\": 0,\r\n  \"detail\": \"string\",\r\n  \"instance\": \"string\"\r\n}",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ProblemDetails"
+              },
+              {
+                "contentType": "text/json",
+                "sample": "{\r\n  \"type\": \"string\",\r\n  \"title\": \"string\",\r\n  \"status\": 0,\r\n  \"detail\": \"string\",\r\n  \"instance\": \"string\"\r\n}",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ProblemDetails"
+              }
+            ]
+          }
+        ],
+        "displayName": "/api/envelope/UpdateEnvelopeExpired - POST",
+        "method": "POST",
+        "urlTemplate": "/api/envelope/UpdateEnvelopeExpired"
+      },
+      "name": "[concat(parameters('ApimServiceName'), '/BlockSignApi/post-api-envelope-updateenvelopeexpired')]",
+      "type": "Microsoft.ApiManagement/service/apis/operations",
+      "apiVersion": "2019-01-01",
+      "dependsOn": [
+        "[resourceId('Microsoft.ApiManagement/service/apis', parameters('ApimServiceName'), 'BlockSignApi')]",
+        "[resourceId('Microsoft.ApiManagement/service/apis/schemas', parameters('ApimServiceName'), 'BlockSignApi', '61f9188694ed5812f43334e7')]"
+      ]
+    },
+    {
+      "properties": {
+        "displayName": "Envelope"
+      },
+      "name": "[concat(parameters('ApimServiceName'), '/BlockSignApi/post-api-envelope-updateenvelopeexpired/Envelope')]",
+      "type": "Microsoft.ApiManagement/service/apis/operations/tags",
+      "apiVersion": "2019-01-01",
+      "dependsOn": [
+        "[resourceId('Microsoft.ApiManagement/service/apis/operations', parameters('ApimServiceName'), 'BlockSignApi', 'post-api-envelope-updateenvelopeexpired')]"
+      ]
+    },
+    {
+      "properties": {
+        "templateParameters": [],
+        "request": {
+          "queryParameters": [],
+          "headers": [],
+          "representations": [
+            {
+              "contentType": "application/json",
+              "sample": "{\r\n  \"signingstatus\": \"string\",\r\n  \"envelopeKey\": \"string\",\r\n  \"signerKey\": \"string\"\r\n}",
+              "schemaId": "61f9188694ed5812f43334e7",
+              "typeName": "UpdateSigningStatusDTO"
+            },
+            {
+              "contentType": "text/json",
+              "sample": "{\r\n  \"signingstatus\": \"string\",\r\n  \"envelopeKey\": \"string\",\r\n  \"signerKey\": \"string\"\r\n}",
+              "schemaId": "61f9188694ed5812f43334e7",
+              "typeName": "UpdateSigningStatusDTO"
+            },
+            {
+              "contentType": "application/*+json",
+              "sample": "{\r\n  \"signingstatus\": \"string\",\r\n  \"envelopeKey\": \"string\",\r\n  \"signerKey\": \"string\"\r\n}",
+              "schemaId": "61f9188694ed5812f43334e7",
+              "typeName": "UpdateSigningStatusDTO"
+            }
+          ]
+        },
+        "responses": [
+          {
+            "statusCode": 200,
+            "description": "Success",
+            "headers": [],
+            "representations": [
+              {
+                "contentType": "text/plain",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ApiResponse"
+              },
+              {
+                "contentType": "application/json",
+                "sample": "{\r\n  \"version\": \"string\",\r\n  \"statusCode\": 0,\r\n  \"message\": \"string\",\r\n  \"isError\": true,\r\n  \"responseException\": {},\r\n  \"result\": {}\r\n}",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ApiResponse"
+              },
+              {
+                "contentType": "text/json",
+                "sample": "{\r\n  \"version\": \"string\",\r\n  \"statusCode\": 0,\r\n  \"message\": \"string\",\r\n  \"isError\": true,\r\n  \"responseException\": {},\r\n  \"result\": {}\r\n}",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ApiResponse"
+              }
+            ]
+          },
+          {
+            "statusCode": 400,
+            "description": "Bad Request",
+            "headers": [],
+            "representations": [
+              {
+                "contentType": "text/plain",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ProblemDetails"
+              },
+              {
+                "contentType": "application/json",
+                "sample": "{\r\n  \"type\": \"string\",\r\n  \"title\": \"string\",\r\n  \"status\": 0,\r\n  \"detail\": \"string\",\r\n  \"instance\": \"string\"\r\n}",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ProblemDetails"
+              },
+              {
+                "contentType": "text/json",
+                "sample": "{\r\n  \"type\": \"string\",\r\n  \"title\": \"string\",\r\n  \"status\": 0,\r\n  \"detail\": \"string\",\r\n  \"instance\": \"string\"\r\n}",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ProblemDetails"
+              }
+            ]
+          }
+        ],
+        "displayName": "/api/envelope/UpdateEnvelopeStatus - POST",
+        "method": "POST",
+        "urlTemplate": "/api/envelope/UpdateEnvelopeStatus"
+      },
+      "name": "[concat(parameters('ApimServiceName'), '/BlockSignApi/post-api-envelope-updateenvelopestatus')]",
+      "type": "Microsoft.ApiManagement/service/apis/operations",
+      "apiVersion": "2019-01-01",
+      "dependsOn": [
+        "[resourceId('Microsoft.ApiManagement/service/apis', parameters('ApimServiceName'), 'BlockSignApi')]",
+        "[resourceId('Microsoft.ApiManagement/service/apis/schemas', parameters('ApimServiceName'), 'BlockSignApi', '61f9188694ed5812f43334e7')]"
+      ]
+    },
+    {
+      "properties": {
+        "displayName": "Envelope"
+      },
+      "name": "[concat(parameters('ApimServiceName'), '/BlockSignApi/post-api-envelope-updateenvelopestatus/Envelope')]",
+      "type": "Microsoft.ApiManagement/service/apis/operations/tags",
+      "apiVersion": "2019-01-01",
+      "dependsOn": [
+        "[resourceId('Microsoft.ApiManagement/service/apis/operations', parameters('ApimServiceName'), 'BlockSignApi', 'post-api-envelope-updateenvelopestatus')]"
+      ]
+    },
+    {
+      "properties": {
+        "templateParameters": [],
+        "request": {
+          "queryParameters": [],
+          "headers": [],
+          "representations": [
+            {
+              "contentType": "application/json",
+              "sample": "[[\r\n  {\r\n    \"signerId\": 0,\r\n    \"envelopeSignerId\": 0,\r\n    \"signerKey\": \"string\",\r\n    \"envelopeId\": 0,\r\n    \"envelopeKey\": \"string\",\r\n    \"fName\": \"string\",\r\n    \"lName\": \"string\",\r\n    \"appId\": \"string\",\r\n    \"isKBA\": 0,\r\n    \"name\": \"string\",\r\n    \"email\": \"string\",\r\n    \"phone\": \"string\",\r\n    \"signOrder\": 0,\r\n    \"signFieldId\": \"string\",\r\n    \"createdTime\": \"string\",\r\n    \"sessionKey\": \"string\",\r\n    \"sessionCreatedTime\": \"string\",\r\n    \"is_Signed\": true\r\n  }\r\n]",
+              "schemaId": "61f9188694ed5812f43334e7",
+              "typeName": "ApiSignerAddSignerToEnvelopePostRequest"
+            },
+            {
+              "contentType": "text/json",
+              "sample": "[\r\n  {\r\n    \"signerId\": 0,\r\n    \"envelopeSignerId\": 0,\r\n    \"signerKey\": \"string\",\r\n    \"envelopeId\": 0,\r\n    \"envelopeKey\": \"string\",\r\n    \"fName\": \"string\",\r\n    \"lName\": \"string\",\r\n    \"appId\": \"string\",\r\n    \"isKBA\": 0,\r\n    \"name\": \"string\",\r\n    \"email\": \"string\",\r\n    \"phone\": \"string\",\r\n    \"signOrder\": 0,\r\n    \"signFieldId\": \"string\",\r\n    \"createdTime\": \"string\",\r\n    \"sessionKey\": \"string\",\r\n    \"sessionCreatedTime\": \"string\",\r\n    \"is_Signed\": true\r\n  }\r\n]",
+              "schemaId": "61f9188694ed5812f43334e7",
+              "typeName": "ApiSignerAddSignerToEnvelopePostRequest-1"
+            },
+            {
+              "contentType": "application/*+json",
+              "sample": "[\r\n  {\r\n    \"signerId\": 0,\r\n    \"envelopeSignerId\": 0,\r\n    \"signerKey\": \"string\",\r\n    \"envelopeId\": 0,\r\n    \"envelopeKey\": \"string\",\r\n    \"fName\": \"string\",\r\n    \"lName\": \"string\",\r\n    \"appId\": \"string\",\r\n    \"isKBA\": 0,\r\n    \"name\": \"string\",\r\n    \"email\": \"string\",\r\n    \"phone\": \"string\",\r\n    \"signOrder\": 0,\r\n    \"signFieldId\": \"string\",\r\n    \"createdTime\": \"string\",\r\n    \"sessionKey\": \"string\",\r\n    \"sessionCreatedTime\": \"string\",\r\n    \"is_Signed\": true\r\n  }\r\n]",
+              "schemaId": "61f9188694ed5812f43334e7",
+              "typeName": "ApiSignerAddSignerToEnvelopePostRequest-2"
+            }
+          ]
+        },
+        "responses": [
+          {
+            "statusCode": 200,
+            "description": "Success",
+            "headers": [],
+            "representations": [
+              {
+                "contentType": "text/plain",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ApiResponse"
+              },
+              {
+                "contentType": "application/json",
+                "sample": "{\r\n  \"version\": \"string\",\r\n  \"statusCode\": 0,\r\n  \"message\": \"string\",\r\n  \"isError\": true,\r\n  \"responseException\": {},\r\n  \"result\": {}\r\n}",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ApiResponse"
+              },
+              {
+                "contentType": "text/json",
+                "sample": "{\r\n  \"version\": \"string\",\r\n  \"statusCode\": 0,\r\n  \"message\": \"string\",\r\n  \"isError\": true,\r\n  \"responseException\": {},\r\n  \"result\": {}\r\n}",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ApiResponse"
+              }
+            ]
+          },
+          {
+            "statusCode": 400,
+            "description": "Bad Request",
+            "headers": [],
+            "representations": [
+              {
+                "contentType": "text/plain",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ProblemDetails"
+              },
+              {
+                "contentType": "application/json",
+                "sample": "{\r\n  \"type\": \"string\",\r\n  \"title\": \"string\",\r\n  \"status\": 0,\r\n  \"detail\": \"string\",\r\n  \"instance\": \"string\"\r\n}",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ProblemDetails"
+              },
+              {
+                "contentType": "text/json",
+                "sample": "{\r\n  \"type\": \"string\",\r\n  \"title\": \"string\",\r\n  \"status\": 0,\r\n  \"detail\": \"string\",\r\n  \"instance\": \"string\"\r\n}",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ProblemDetails"
+              }
+            ]
+          }
+        ],
+        "displayName": "/api/signer/AddSignerToEnvelope - POST",
+        "method": "POST",
+        "urlTemplate": "/api/signer/AddSignerToEnvelope"
+      },
+      "name": "[concat(parameters('ApimServiceName'), '/BlockSignApi/post-api-signer-addsignertoenvelope')]",
+      "type": "Microsoft.ApiManagement/service/apis/operations",
+      "apiVersion": "2019-01-01",
+      "dependsOn": [
+        "[resourceId('Microsoft.ApiManagement/service/apis', parameters('ApimServiceName'), 'BlockSignApi')]",
+        "[resourceId('Microsoft.ApiManagement/service/apis/schemas', parameters('ApimServiceName'), 'BlockSignApi', '61f9188694ed5812f43334e7')]"
+      ]
+    },
+    {
+      "properties": {
+        "displayName": "Signer"
+      },
+      "name": "[concat(parameters('ApimServiceName'), '/BlockSignApi/post-api-signer-addsignertoenvelope/Signer')]",
+      "type": "Microsoft.ApiManagement/service/apis/operations/tags",
+      "apiVersion": "2019-01-01",
+      "dependsOn": [
+        "[resourceId('Microsoft.ApiManagement/service/apis/operations', parameters('ApimServiceName'), 'BlockSignApi', 'post-api-signer-addsignertoenvelope')]"
+      ]
+    },
+    {
+      "properties": {
+        "templateParameters": [
+          {
+            "name": "EnvelopeKey",
+            "type": "string",
+            "required": true,
+            "values": []
+          },
+          {
+            "name": "SignerKey",
+            "type": "string",
+            "required": true,
+            "values": []
+          }
+        ],
+        "request": {
+          "queryParameters": [
+            {
+              "name": "SourceIpAddress",
+              "type": "string",
+              "required": false,
+              "values": []
+            }
+          ],
+          "headers": [],
+          "representations": []
+        },
+        "responses": [
+          {
+            "statusCode": 200,
+            "description": "Success",
+            "headers": [],
+            "representations": [
+              {
+                "contentType": "text/plain",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ApiResponse"
+              },
+              {
+                "contentType": "application/json",
+                "sample": "{\r\n  \"version\": \"string\",\r\n  \"statusCode\": 0,\r\n  \"message\": \"string\",\r\n  \"isError\": true,\r\n  \"responseException\": {},\r\n  \"result\": {}\r\n}",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ApiResponse"
+              },
+              {
+                "contentType": "text/json",
+                "sample": "{\r\n  \"version\": \"string\",\r\n  \"statusCode\": 0,\r\n  \"message\": \"string\",\r\n  \"isError\": true,\r\n  \"responseException\": {},\r\n  \"result\": {}\r\n}",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ApiResponse"
+              }
+            ]
+          },
+          {
+            "statusCode": 400,
+            "description": "Bad Request",
+            "headers": [],
+            "representations": [
+              {
+                "contentType": "text/plain",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ProblemDetails"
+              },
+              {
+                "contentType": "application/json",
+                "sample": "{\r\n  \"type\": \"string\",\r\n  \"title\": \"string\",\r\n  \"status\": 0,\r\n  \"detail\": \"string\",\r\n  \"instance\": \"string\"\r\n}",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ProblemDetails"
+              },
+              {
+                "contentType": "text/json",
+                "sample": "{\r\n  \"type\": \"string\",\r\n  \"title\": \"string\",\r\n  \"status\": 0,\r\n  \"detail\": \"string\",\r\n  \"instance\": \"string\"\r\n}",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ProblemDetails"
+              }
+            ]
+          }
+        ],
+        "displayName": "/api/signer/DeleteSigner?EnvelopeKey={EnvelopeKey}&SignerKey={SignerKey} - DELETE",
+        "method": "DELETE",
+        "urlTemplate": "/api/signer/DeleteSigner?EnvelopeKey={EnvelopeKey}&SignerKey={SignerKey}"
+      },
+      "name": "[concat(parameters('ApimServiceName'), '/BlockSignApi/delete-api-signer-deletesigner-envelopekey-envelopekey-signerkey-signerkey')]",
+      "type": "Microsoft.ApiManagement/service/apis/operations",
+      "apiVersion": "2019-01-01",
+      "dependsOn": [
+        "[resourceId('Microsoft.ApiManagement/service/apis', parameters('ApimServiceName'), 'BlockSignApi')]",
+        "[resourceId('Microsoft.ApiManagement/service/apis/schemas', parameters('ApimServiceName'), 'BlockSignApi', '61f9188694ed5812f43334e7')]"
+      ]
+    },
+    {
+      "properties": {
+        "displayName": "Signer"
+      },
+      "name": "[concat(parameters('ApimServiceName'), '/BlockSignApi/delete-api-signer-deletesigner-envelopekey-envelopekey-signerkey-signerkey/Signer')]",
+      "type": "Microsoft.ApiManagement/service/apis/operations/tags",
+      "apiVersion": "2019-01-01",
+      "dependsOn": [
+        "[resourceId('Microsoft.ApiManagement/service/apis/operations', parameters('ApimServiceName'), 'BlockSignApi', 'delete-api-signer-deletesigner-envelopekey-envelopekey-signerkey-signerkey')]"
+      ]
+    },
+    {
+      "properties": {
+        "templateParameters": [
+          {
+            "name": "TransactionId",
+            "type": "string",
+            "required": true,
+            "values": []
+          }
+        ],
+        "request": {
+          "queryParameters": [],
+          "headers": [],
+          "representations": []
+        },
+        "responses": [
+          {
+            "statusCode": 200,
+            "description": "Success",
+            "headers": [],
+            "representations": [
+              {
+                "contentType": "text/plain",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ApiResponse"
+              },
+              {
+                "contentType": "application/json",
+                "sample": "{\r\n  \"version\": \"string\",\r\n  \"statusCode\": 0,\r\n  \"message\": \"string\",\r\n  \"isError\": true,\r\n  \"responseException\": {},\r\n  \"result\": {}\r\n}",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ApiResponse"
+              },
+              {
+                "contentType": "text/json",
+                "sample": "{\r\n  \"version\": \"string\",\r\n  \"statusCode\": 0,\r\n  \"message\": \"string\",\r\n  \"isError\": true,\r\n  \"responseException\": {},\r\n  \"result\": {}\r\n}",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ApiResponse"
+              }
+            ]
+          },
+          {
+            "statusCode": 400,
+            "description": "Bad Request",
+            "headers": [],
+            "representations": [
+              {
+                "contentType": "text/plain",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ProblemDetails"
+              },
+              {
+                "contentType": "application/json",
+                "sample": "{\r\n  \"type\": \"string\",\r\n  \"title\": \"string\",\r\n  \"status\": 0,\r\n  \"detail\": \"string\",\r\n  \"instance\": \"string\"\r\n}",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ProblemDetails"
+              },
+              {
+                "contentType": "text/json",
+                "sample": "{\r\n  \"type\": \"string\",\r\n  \"title\": \"string\",\r\n  \"status\": 0,\r\n  \"detail\": \"string\",\r\n  \"instance\": \"string\"\r\n}",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ProblemDetails"
+              }
+            ]
+          }
+        ],
+        "displayName": "/api/signer/GetKBAStatus?TransactionId={TransactionId} - GET",
+        "method": "GET",
+        "urlTemplate": "/api/signer/GetKBAStatus?TransactionId={TransactionId}"
+      },
+      "name": "[concat(parameters('ApimServiceName'), '/BlockSignApi/get-api-signer-getkbastatus-transactionid-transactionid')]",
+      "type": "Microsoft.ApiManagement/service/apis/operations",
+      "apiVersion": "2019-01-01",
+      "dependsOn": [
+        "[resourceId('Microsoft.ApiManagement/service/apis', parameters('ApimServiceName'), 'BlockSignApi')]",
+        "[resourceId('Microsoft.ApiManagement/service/apis/schemas', parameters('ApimServiceName'), 'BlockSignApi', '61f9188694ed5812f43334e7')]"
+      ]
+    },
+    {
+      "properties": {
+        "displayName": "Signer"
+      },
+      "name": "[concat(parameters('ApimServiceName'), '/BlockSignApi/get-api-signer-getkbastatus-transactionid-transactionid/Signer')]",
+      "type": "Microsoft.ApiManagement/service/apis/operations/tags",
+      "apiVersion": "2019-01-01",
+      "dependsOn": [
+        "[resourceId('Microsoft.ApiManagement/service/apis/operations', parameters('ApimServiceName'), 'BlockSignApi', 'get-api-signer-getkbastatus-transactionid-transactionid')]"
+      ]
+    },
+    {
+      "properties": {
+        "templateParameters": [
+          {
+            "name": "EnvelopeKey",
+            "type": "string",
+            "required": true,
+            "values": []
+          },
+          {
+            "name": "SignerKey",
+            "type": "string",
+            "required": true,
+            "values": []
+          }
+        ],
+        "request": {
+          "queryParameters": [
+            {
+              "name": "SourceIpAddress",
+              "type": "string",
+              "required": false,
+              "values": []
+            }
+          ],
+          "headers": [],
+          "representations": []
+        },
+        "responses": [
+          {
+            "statusCode": 200,
+            "description": "Success",
+            "headers": [],
+            "representations": [
+              {
+                "contentType": "text/plain",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ApiResponse"
+              },
+              {
+                "contentType": "application/json",
+                "sample": "{\r\n  \"version\": \"string\",\r\n  \"statusCode\": 0,\r\n  \"message\": \"string\",\r\n  \"isError\": true,\r\n  \"responseException\": {},\r\n  \"result\": {}\r\n}",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ApiResponse"
+              },
+              {
+                "contentType": "text/json",
+                "sample": "{\r\n  \"version\": \"string\",\r\n  \"statusCode\": 0,\r\n  \"message\": \"string\",\r\n  \"isError\": true,\r\n  \"responseException\": {},\r\n  \"result\": {}\r\n}",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ApiResponse"
+              }
+            ]
+          },
+          {
+            "statusCode": 400,
+            "description": "Bad Request",
+            "headers": [],
+            "representations": [
+              {
+                "contentType": "text/plain",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ProblemDetails"
+              },
+              {
+                "contentType": "application/json",
+                "sample": "{\r\n  \"type\": \"string\",\r\n  \"title\": \"string\",\r\n  \"status\": 0,\r\n  \"detail\": \"string\",\r\n  \"instance\": \"string\"\r\n}",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ProblemDetails"
+              },
+              {
+                "contentType": "text/json",
+                "sample": "{\r\n  \"type\": \"string\",\r\n  \"title\": \"string\",\r\n  \"status\": 0,\r\n  \"detail\": \"string\",\r\n  \"instance\": \"string\"\r\n}",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ProblemDetails"
+              }
+            ]
+          }
+        ],
+        "displayName": "/api/signer/GetSigner?EnvelopeKey={EnvelopeKey}&SignerKey={SignerKey} - GET",
+        "method": "GET",
+        "urlTemplate": "/api/signer/GetSigner?EnvelopeKey={EnvelopeKey}&SignerKey={SignerKey}"
+      },
+      "name": "[concat(parameters('ApimServiceName'), '/BlockSignApi/get-api-signer-getsigner-envelopekey-envelopekey-signerkey-signerkey')]",
+      "type": "Microsoft.ApiManagement/service/apis/operations",
+      "apiVersion": "2019-01-01",
+      "dependsOn": [
+        "[resourceId('Microsoft.ApiManagement/service/apis', parameters('ApimServiceName'), 'BlockSignApi')]",
+        "[resourceId('Microsoft.ApiManagement/service/apis/schemas', parameters('ApimServiceName'), 'BlockSignApi', '61f9188694ed5812f43334e7')]"
+      ]
+    },
+    {
+      "properties": {
+        "displayName": "Signer"
+      },
+      "name": "[concat(parameters('ApimServiceName'), '/BlockSignApi/get-api-signer-getsigner-envelopekey-envelopekey-signerkey-signerkey/Signer')]",
+      "type": "Microsoft.ApiManagement/service/apis/operations/tags",
+      "apiVersion": "2019-01-01",
+      "dependsOn": [
+        "[resourceId('Microsoft.ApiManagement/service/apis/operations', parameters('ApimServiceName'), 'BlockSignApi', 'get-api-signer-getsigner-envelopekey-envelopekey-signerkey-signerkey')]"
+      ]
+    },
+    {
+      "properties": {
+        "templateParameters": [],
+        "request": {
+          "queryParameters": [
+            {
+              "name": "envelopekey",
+              "type": "string",
+              "required": false,
+              "values": []
+            },
+            {
+              "name": "signerkey",
+              "type": "string",
+              "required": false,
+              "values": []
+            }
+          ],
+          "headers": [],
+          "representations": []
+        },
+        "responses": [
+          {
+            "statusCode": 200,
+            "description": "Success",
+            "headers": [],
+            "representations": [
+              {
+                "contentType": "text/plain",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ApiResponse"
+              },
+              {
+                "contentType": "application/json",
+                "sample": "{\r\n  \"version\": \"string\",\r\n  \"statusCode\": 0,\r\n  \"message\": \"string\",\r\n  \"isError\": true,\r\n  \"responseException\": {},\r\n  \"result\": {}\r\n}",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ApiResponse"
+              },
+              {
+                "contentType": "text/json",
+                "sample": "{\r\n  \"version\": \"string\",\r\n  \"statusCode\": 0,\r\n  \"message\": \"string\",\r\n  \"isError\": true,\r\n  \"responseException\": {},\r\n  \"result\": {}\r\n}",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ApiResponse"
+              }
+            ]
+          },
+          {
+            "statusCode": 400,
+            "description": "Bad Request",
+            "headers": [],
+            "representations": [
+              {
+                "contentType": "text/plain",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ProblemDetails"
+              },
+              {
+                "contentType": "application/json",
+                "sample": "{\r\n  \"type\": \"string\",\r\n  \"title\": \"string\",\r\n  \"status\": 0,\r\n  \"detail\": \"string\",\r\n  \"instance\": \"string\"\r\n}",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ProblemDetails"
+              },
+              {
+                "contentType": "text/json",
+                "sample": "{\r\n  \"type\": \"string\",\r\n  \"title\": \"string\",\r\n  \"status\": 0,\r\n  \"detail\": \"string\",\r\n  \"instance\": \"string\"\r\n}",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ProblemDetails"
+              }
+            ]
+          }
+        ],
+        "displayName": "/api/signer/GetSignURL - GET",
+        "method": "GET",
+        "urlTemplate": "/api/signer/GetSignURL"
+      },
+      "name": "[concat(parameters('ApimServiceName'), '/BlockSignApi/get-api-signer-getsignurl')]",
+      "type": "Microsoft.ApiManagement/service/apis/operations",
+      "apiVersion": "2019-01-01",
+      "dependsOn": [
+        "[resourceId('Microsoft.ApiManagement/service/apis', parameters('ApimServiceName'), 'BlockSignApi')]",
+        "[resourceId('Microsoft.ApiManagement/service/apis/schemas', parameters('ApimServiceName'), 'BlockSignApi', '61f9188694ed5812f43334e7')]"
+      ]
+    },
+    {
+      "properties": {
+        "displayName": "Signer"
+      },
+      "name": "[concat(parameters('ApimServiceName'), '/BlockSignApi/get-api-signer-getsignurl/Signer')]",
+      "type": "Microsoft.ApiManagement/service/apis/operations/tags",
+      "apiVersion": "2019-01-01",
+      "dependsOn": [
+        "[resourceId('Microsoft.ApiManagement/service/apis/operations', parameters('ApimServiceName'), 'BlockSignApi', 'get-api-signer-getsignurl')]"
+      ]
+    },
+    {
+      "properties": {
+        "templateParameters": [],
+        "request": {
+          "queryParameters": [],
+          "headers": [
+            {
+              "name": "bsg-session-key",
+              "type": "string",
+              "required": false,
+              "values": []
+            }
+          ],
+          "representations": [
+            {
+              "contentType": "multipart/form-data",
+              "formParameters": [
+                {
+                  "name": "SignerKey",
+                  "type": "string",
+                  "required": false,
+                  "values": []
+                },
+                {
+                  "name": "EnvelopeKey",
+                  "type": "string",
+                  "required": false,
+                  "values": []
+                },
+                {
+                  "name": "SignValue",
+                  "type": "string",
+                  "required": false,
+                  "values": []
+                },
+                {
+                  "name": "SignedTime",
+                  "type": "string",
+                  "required": false,
+                  "values": []
+                },
+                {
+                  "name": "Documents",
+                  "type": "string",
+                  "required": false,
+                  "values": []
+                },
+                {
+                  "name": "SourceIpAddress",
+                  "type": "string",
+                  "required": false,
+                  "values": []
+                },
+                {
+                  "name": "Key",
+                  "type": "string",
+                  "required": false,
+                  "values": []
+                },
+                {
+                  "name": "Files.Length",
+                  "type": "integer",
+                  "required": false,
+                  "values": []
+                },
+                {
+                  "name": "Files.IsDefault",
+                  "type": "boolean",
+                  "required": false,
+                  "values": []
+                }
+              ]
+            }
+          ]
+        },
+        "responses": [
+          {
+            "statusCode": 200,
+            "description": "Success",
+            "headers": [],
+            "representations": [
+              {
+                "contentType": "text/plain",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ApiResponse"
+              },
+              {
+                "contentType": "application/json",
+                "sample": "{\r\n  \"version\": \"string\",\r\n  \"statusCode\": 0,\r\n  \"message\": \"string\",\r\n  \"isError\": true,\r\n  \"responseException\": {},\r\n  \"result\": {}\r\n}",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ApiResponse"
+              },
+              {
+                "contentType": "text/json",
+                "sample": "{\r\n  \"version\": \"string\",\r\n  \"statusCode\": 0,\r\n  \"message\": \"string\",\r\n  \"isError\": true,\r\n  \"responseException\": {},\r\n  \"result\": {}\r\n}",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ApiResponse"
+              }
+            ]
+          },
+          {
+            "statusCode": 400,
+            "description": "Bad Request",
+            "headers": [],
+            "representations": [
+              {
+                "contentType": "text/plain",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ProblemDetails"
+              },
+              {
+                "contentType": "application/json",
+                "sample": "{\r\n  \"type\": \"string\",\r\n  \"title\": \"string\",\r\n  \"status\": 0,\r\n  \"detail\": \"string\",\r\n  \"instance\": \"string\"\r\n}",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ProblemDetails"
+              },
+              {
+                "contentType": "text/json",
+                "sample": "{\r\n  \"type\": \"string\",\r\n  \"title\": \"string\",\r\n  \"status\": 0,\r\n  \"detail\": \"string\",\r\n  \"instance\": \"string\"\r\n}",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ProblemDetails"
+              }
+            ]
+          }
+        ],
+        "displayName": "/api/signer/Signature - POST",
+        "method": "POST",
+        "urlTemplate": "/api/signer/Signature"
+      },
+      "name": "[concat(parameters('ApimServiceName'), '/BlockSignApi/post-api-signer-signature')]",
+      "type": "Microsoft.ApiManagement/service/apis/operations",
+      "apiVersion": "2019-01-01",
+      "dependsOn": [
+        "[resourceId('Microsoft.ApiManagement/service/apis', parameters('ApimServiceName'), 'BlockSignApi')]",
+        "[resourceId('Microsoft.ApiManagement/service/apis/schemas', parameters('ApimServiceName'), 'BlockSignApi', '61f9188694ed5812f43334e7')]"
+      ]
+    },
+    {
+      "properties": {
+        "displayName": "Signer"
+      },
+      "name": "[concat(parameters('ApimServiceName'), '/BlockSignApi/post-api-signer-signature/Signer')]",
+      "type": "Microsoft.ApiManagement/service/apis/operations/tags",
+      "apiVersion": "2019-01-01",
+      "dependsOn": [
+        "[resourceId('Microsoft.ApiManagement/service/apis/operations', parameters('ApimServiceName'), 'BlockSignApi', 'post-api-signer-signature')]"
+      ]
+    },
+    {
+      "properties": {
+        "templateParameters": [],
+        "request": {
+          "queryParameters": [],
+          "headers": [],
+          "representations": [
+            {
+              "contentType": "application/json",
+              "sample": "{\r\n  \"envelopeKey\": \"string\",\r\n  \"signerKey\": \"string\",\r\n  \"sessionKey\": \"string\"\r\n}",
+              "schemaId": "61f9188694ed5812f43334e7",
+              "typeName": "UpdateSignerAttemptFailed"
+            },
+            {
+              "contentType": "text/json",
+              "sample": "{\r\n  \"envelopeKey\": \"string\",\r\n  \"signerKey\": \"string\",\r\n  \"sessionKey\": \"string\"\r\n}",
+              "schemaId": "61f9188694ed5812f43334e7",
+              "typeName": "UpdateSignerAttemptFailed"
+            },
+            {
+              "contentType": "application/*+json",
+              "sample": "{\r\n  \"envelopeKey\": \"string\",\r\n  \"signerKey\": \"string\",\r\n  \"sessionKey\": \"string\"\r\n}",
+              "schemaId": "61f9188694ed5812f43334e7",
+              "typeName": "UpdateSignerAttemptFailed"
+            }
+          ]
+        },
+        "responses": [
+          {
+            "statusCode": 200,
+            "description": "Success",
+            "headers": [],
+            "representations": [
+              {
+                "contentType": "text/plain",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ApiResponse"
+              },
+              {
+                "contentType": "application/json",
+                "sample": "{\r\n  \"version\": \"string\",\r\n  \"statusCode\": 0,\r\n  \"message\": \"string\",\r\n  \"isError\": true,\r\n  \"responseException\": {},\r\n  \"result\": {}\r\n}",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ApiResponse"
+              },
+              {
+                "contentType": "text/json",
+                "sample": "{\r\n  \"version\": \"string\",\r\n  \"statusCode\": 0,\r\n  \"message\": \"string\",\r\n  \"isError\": true,\r\n  \"responseException\": {},\r\n  \"result\": {}\r\n}",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ApiResponse"
+              }
+            ]
+          },
+          {
+            "statusCode": 400,
+            "description": "Bad Request",
+            "headers": [],
+            "representations": [
+              {
+                "contentType": "text/plain",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ProblemDetails"
+              },
+              {
+                "contentType": "application/json",
+                "sample": "{\r\n  \"type\": \"string\",\r\n  \"title\": \"string\",\r\n  \"status\": 0,\r\n  \"detail\": \"string\",\r\n  \"instance\": \"string\"\r\n}",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ProblemDetails"
+              },
+              {
+                "contentType": "text/json",
+                "sample": "{\r\n  \"type\": \"string\",\r\n  \"title\": \"string\",\r\n  \"status\": 0,\r\n  \"detail\": \"string\",\r\n  \"instance\": \"string\"\r\n}",
+                "schemaId": "61f9188694ed5812f43334e7",
+                "typeName": "ProblemDetails"
+              }
+            ]
+          }
+        ],
+        "displayName": "/api/signer/UpdateSignerAttemptFailedInfo - POST",
+        "method": "POST",
+        "urlTemplate": "/api/signer/UpdateSignerAttemptFailedInfo"
+      },
+      "name": "[concat(parameters('ApimServiceName'), '/BlockSignApi/post-api-signer-updatesignerattemptfailedinfo')]",
+      "type": "Microsoft.ApiManagement/service/apis/operations",
+      "apiVersion": "2019-01-01",
+      "dependsOn": [
+        "[resourceId('Microsoft.ApiManagement/service/apis', parameters('ApimServiceName'), 'BlockSignApi')]",
+        "[resourceId('Microsoft.ApiManagement/service/apis/schemas', parameters('ApimServiceName'), 'BlockSignApi', '61f9188694ed5812f43334e7')]"
+      ]
+    },
+    {
+      "properties": {
+        "displayName": "Signer"
+      },
+      "name": "[concat(parameters('ApimServiceName'), '/BlockSignApi/post-api-signer-updatesignerattemptfailedinfo/Signer')]",
+      "type": "Microsoft.ApiManagement/service/apis/operations/tags",
+      "apiVersion": "2019-01-01",
+      "dependsOn": [
+        "[resourceId('Microsoft.ApiManagement/service/apis/operations', parameters('ApimServiceName'), 'BlockSignApi', 'post-api-signer-updatesignerattemptfailedinfo')]"
+      ]
+    },
+    {
+      "properties": {
+        "value": "[concat(parameters('PolicyXMLBaseUrl'), '/BlockSignApi-apiPolicy.xml')]",
+        "format": "rawxml-link"
+      },
+      "name": "[concat(parameters('ApimServiceName'), '/BlockSignApi/policy')]",
+      "type": "Microsoft.ApiManagement/service/apis/policies",
+      "apiVersion": "2019-01-01",
+      "dependsOn": [
+        "[resourceId('Microsoft.ApiManagement/service/apis', parameters('ApimServiceName'), 'BlockSignApi')]"
+      ]
+    },
+    {
+      "properties": {},
+      "name": "[concat(parameters('ApimServiceName'), '/BlockSign/BlockSignApi')]",
+      "type": "Microsoft.ApiManagement/service/products/apis",
+      "apiVersion": "2019-01-01",
+      "dependsOn": [
+        "[resourceId('Microsoft.ApiManagement/service/apis', parameters('ApimServiceName'), 'BlockSignApi')]"
+      ]
+    }
+  ]
+}
